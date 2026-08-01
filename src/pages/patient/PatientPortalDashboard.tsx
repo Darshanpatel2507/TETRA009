@@ -370,7 +370,7 @@ export function PatientPortalDashboard() {
                   </div>
 
                   <div className="mt-5 pt-3.5 border-t border-border/60 flex items-center justify-between text-xs text-brand-primary font-extrabold group-hover:translate-x-1 transition-transform">
-                    <span>View Layman Health Report</span>
+                    <span>View Complete Checkup Summary</span>
                     <span>→</span>
                   </div>
                 </Card>

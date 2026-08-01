@@ -3,7 +3,7 @@ import { useLang } from "../../context/LanguageContext";
 export function TopBar() {
   const { t } = useLang();
   return (
-    <header className="h-16 border-b border-border bg-surface/95 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-[100] shadow-sm">
+    <header className="h-16 border-b border-border bg-surface flex items-center justify-between px-6 sticky top-0 z-[100] shadow-sm">
       <div className="flex items-center gap-3">
         <img src="/favicon.svg" alt="Sahayak" className="h-9 w-9 rounded-lg md:hidden shadow-sm" />
         <span className="text-sm font-semibold text-text-primary">{t("app.tagline")}</span>

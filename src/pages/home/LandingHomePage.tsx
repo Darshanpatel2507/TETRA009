@@ -99,7 +99,7 @@ export function LandingHomePage() {
                 </span>
                 <div className="flex flex-wrap gap-2 text-right">
                   <span className="text-[11px] font-bold font-mono px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
-                    EASY LAYMAN WORDS
+                    EASY EVERYDAY WORDS
                   </span>
                 </div>
               </div>
@@ -229,6 +229,151 @@ export function LandingHomePage() {
               If a checkup shows you need to visit a city specialist or hospital, Sahayak instantly drafts an official medical letter summarizing your symptoms, so the receiving hospital doctor immediately knows how to help.
             </p>
           </Card>
+        </div>
+      </div>
+
+      {/* NEW: Educational Clinical Guide & Transparency Section */}
+      <div className="pt-8">
+        <div className="rounded-3xl bg-gradient-to-br from-[#122420] via-[#162D28] to-[#10201D] border border-[#265349] p-8 shadow-2xl text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 max-w-3xl mb-8">
+            <div className="flex items-center gap-2.5 mb-2">
+              <span className="h-3 w-3 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs uppercase tracking-widest text-emerald-300 font-extrabold font-mono">
+                CLINICAL TRANSPARENCY & LEARNING GUIDE
+              </span>
+            </div>
+            <h3 className="font-display text-2xl md:text-3xl font-black text-white tracking-tight">
+              How Your Health Scores Are Calculated in the Risk Constellation
+            </h3>
+            <p className="text-sm text-emerald-100/90 mt-2 leading-relaxed font-normal">
+              Unlike ordinary general chat tools, Sahayak relies entirely on validated international medical formulas and peer-reviewed guidelines to assign health check scores and urgency colors. Here is exactly where your diagnostic scores come from:
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 relative z-10">
+            <div className="bg-[#1A3630]/90 p-5 rounded-2xl border border-emerald-400/30 shadow-md flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2 text-base font-bold text-white mb-2">
+                  <span className="text-xl p-2 rounded-xl bg-[#122622]">❤️</span>
+                  <span>Heart & Blood Flow (CVD)</span>
+                </div>
+                <p className="text-xs text-emerald-100 font-normal leading-relaxed">
+                  Calculated using <strong>WHO / ISH SEAR-B Charts</strong> calibrated specially for South-East Asian communities. It combines age, systolic blood pressure, biological sex, smoking habits, and diabetic status into an exact 10-year cardiovascular safety percentage.
+                </p>
+              </div>
+              <div className="mt-4 pt-2.5 border-t border-emerald-500/20 text-[10px] font-mono text-emerald-300 font-bold">
+                BENCHMARK: WHO/ISH SEAR-B CHARTS
+              </div>
+            </div>
+
+            <div className="bg-[#1A3630]/90 p-5 rounded-2xl border border-emerald-400/30 shadow-md flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2 text-base font-bold text-white mb-2">
+                  <span className="text-xl p-2 rounded-xl bg-[#122622]">🩸</span>
+                  <span>Blood Sugar Balance (Diabetes)</span>
+                </div>
+                <p className="text-xs text-emerald-100 font-normal leading-relaxed">
+                  Evaluated using the verified <strong>IDRS (Indian Diabetes Risk Score)</strong> standard. Computes screening alerts by analyzing age group, conservative waist measurements, physical exercise activity routines, and direct parental/sibling diabetic history.
+                </p>
+              </div>
+              <div className="mt-4 pt-2.5 border-t border-emerald-500/20 text-[10px] font-mono text-emerald-300 font-bold">
+                BENCHMARK: INDIAN DIABETES RISK SCORE (IDRS)
+              </div>
+            </div>
+
+            <div className="bg-[#1A3630]/90 p-5 rounded-2xl border border-emerald-400/30 shadow-md flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2 text-base font-bold text-white mb-2">
+                  <span className="text-xl p-2 rounded-xl bg-[#122622]">💓</span>
+                  <span>Blood Pressure (Hypertension)</span>
+                </div>
+                <p className="text-xs text-emerald-100 font-normal leading-relaxed">
+                  Staged strictly according to <strong>JNC 8 Medical Guidelines</strong>. Automatically evaluates systolic and diastolic blood pressure readings against clear diagnostic thresholds: Normal (&lt;120/80), Elevated, Stage 1, Stage 2, and emergency Hypertensive Crisis.
+                </p>
+              </div>
+              <div className="mt-4 pt-2.5 border-t border-emerald-500/20 text-[10px] font-mono text-emerald-300 font-bold">
+                BENCHMARK: JNC 8 SCREENING RULES
+              </div>
+            </div>
+
+            <div className="bg-[#1A3630]/90 p-5 rounded-2xl border border-emerald-400/30 shadow-md flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-2 text-base font-bold text-white mb-2">
+                  <span className="text-xl p-2 rounded-xl bg-[#122622]">🛡️</span>
+                  <span>Kidney Filtration Health (CKD)</span>
+                </div>
+                <p className="text-xs text-emerald-100 font-normal leading-relaxed">
+                  Utilizes the modern <strong>CKD-EPI 2021 Creatinine Equation</strong>. Mathematically computes your estimated Glomerular Filtration Rate (eGFR) using lab values, age, and sex factors to detect even early changes in how smoothly your kidneys filter daily body waste.
+                </p>
+              </div>
+              <div className="mt-4 pt-2.5 border-t border-emerald-500/20 text-[10px] font-mono text-emerald-300 font-bold">
+                BENCHMARK: KDIGO / CKD-EPI 2021
+              </div>
+            </div>
+
+            <div className="bg-[#1A3630]/90 p-5 rounded-2xl border border-emerald-400/30 shadow-md flex flex-col justify-between md:col-span-2 lg:col-span-2">
+              <div>
+                <div className="flex items-center gap-2 text-base font-bold text-white mb-2">
+                  <span className="text-xl p-2 rounded-xl bg-[#122622]">🧠</span>
+                  <span>Brain & Stroke Alert (Cerebrovascular Triage)</span>
+                </div>
+                <p className="text-xs text-emerald-100 font-normal leading-relaxed">
+                  Combines a dual-layer triage safeguard: (1) The acute <strong>FAST Protocol</strong> screening for emergency physical signs like sudden facial drooping, arm numbness, or speech slurring, combined with (2) The clinical <strong>ABCD² Risk Staging</strong> model (Age, Blood Pressure, Clinical features, Duration of symptoms, and Diabetes) to evaluate protective prevention steps before vascular emergencies happen.
+                </p>
+              </div>
+              <div className="mt-4 pt-2.5 border-t border-emerald-500/20 flex flex-wrap items-center justify-between text-[10px] font-mono text-emerald-300 font-bold gap-2">
+                <span>BENCHMARK: FAST PROTOCOL & ABCD² MODEL</span>
+                <span className="text-emerald-400 font-extrabold flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                  AUTOMATICALLY INTEGRATED IN EVERY HEALTH CHECKUP
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Explanation of the 4 Urgency Colors */}
+          <div className="mt-8 pt-6 border-t border-emerald-500/30 relative z-10">
+            <h4 className="font-display font-bold text-base text-white mb-4 flex items-center gap-2">
+              <span>📊</span> Understanding the 4 Color-Coded Urgency Levels
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-[#16332D]/90 p-4 rounded-xl border border-emerald-400/40 shadow-sm">
+                <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-200 border border-emerald-400/40 mb-2">
+                  🟢 SAFE & HEALTHY (LOW)
+                </span>
+                <p className="text-[11px] text-emerald-100 font-normal leading-relaxed">
+                  All vital signs and risk scores are well within normal baseline limits. No immediate doctor consultation is needed; maintain healthy eating and regular exercise habits.
+                </p>
+              </div>
+              <div className="bg-amber-950/40 p-4 rounded-xl border border-amber-400/40 shadow-sm">
+                <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-200 border border-amber-400/40 mb-2">
+                  🟡 NEEDS MONITORING (MODERATE)
+                </span>
+                <p className="text-[11px] text-amber-100 font-normal leading-relaxed">
+                  Minor elevations in blood pressure or sugar scores detected. We advise gentle lifestyle adjustments, lowering daily salt/sugar intake, and monitoring numbers weekly at home.
+                </p>
+              </div>
+              <div className="bg-orange-950/40 p-4 rounded-xl border border-orange-400/40 shadow-sm">
+                <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-orange-500/20 text-orange-200 border border-orange-400/40 mb-2">
+                  🟠 HIGH ALERT (URGENT)
+                </span>
+                <p className="text-[11px] text-orange-100 font-normal leading-relaxed">
+                  A significant vital reading or symptom warrants early medical evaluation. We recommend scheduling an appointment with a local general specialist or hospital center for guidance.
+                </p>
+              </div>
+              <div className="bg-red-950/60 p-4 rounded-xl border border-red-500/50 shadow-sm">
+                <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500/25 text-red-200 border border-red-400/50 mb-2">
+                  🔴 CRITICAL WARNING (ACT NOW)
+                </span>
+                <p className="text-[11px] text-red-100 font-normal leading-relaxed">
+                  Acute emergency markers detected (e.g. Stage 2 hypertension or stroke signs). Requires immediate patient rest and accompaniment to the nearest emergency clinic with your Sahayak report.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
