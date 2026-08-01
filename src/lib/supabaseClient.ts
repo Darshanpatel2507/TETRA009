@@ -22,7 +22,10 @@ if (!url || !anonKey) {
   );
 }
 
-export const supabase = createClient(url ?? "", anonKey ?? "", {
+const defaultUrl = url || "https://placeholder.supabase.co";
+const defaultKey = anonKey || "placeholder-anon-key-for-offline-fallback";
+
+export const supabase = createClient(defaultUrl, defaultKey, {
   auth: {
     persistSession: false,
     autoRefreshToken: false,
