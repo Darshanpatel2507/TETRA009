@@ -7,11 +7,13 @@ import { RiskConstellationPage } from "./pages/patient/RiskConstellationPage";
 import { RiskBreakdownPage } from "./pages/patient/RiskBreakdownPage";
 import { LandingHomePage } from "./pages/home/LandingHomePage";
 import { PatientPortalDashboard } from "./pages/patient/PatientPortalDashboard";
+import { PersonalHealthDashboard } from "./pages/patient/PersonalHealthDashboard";
 
 /**
- * Sahayak routes — dual gateway portals & clinical registry.
- *  /                                   → LandingHomePage (Showcase & Dual Portal Gateway)
- *  /my-health                          → PatientPortalDashboard (Personal Patient Hub)
+ * Sahayak routes — tri-portal gateways & clinical registry.
+ *  /                                   → LandingHomePage (Showcase & Tri-Portal Gateway)
+ *  /personal-health                    → PersonalHealthDashboard (Individual Symptom & Health Hub)
+ *  /family-health                      → PatientPortalDashboard (Family Group & Household Hub)
  *  /dashboard                          → ClinicalDashboardPage (Clinical Worker Registry)
  *  /patient/intake                     → New health checkup wizard
  *  /patient/:id/constellation          → Risk constellation view
@@ -25,6 +27,8 @@ export default function App() {
         <AppShell>
           <Routes>
             <Route path="/" element={<LandingHomePage />} />
+            <Route path="/personal-health" element={<PersonalHealthDashboard />} />
+            <Route path="/family-health" element={<PatientPortalDashboard />} />
             <Route path="/my-health" element={<PatientPortalDashboard />} />
             <Route path="/dashboard" element={<ClinicalDashboardPage />} />
             <Route path="/patient/intake" element={<PatientIntakePage />} />
@@ -45,6 +49,8 @@ export default function App() {
         <MobileShell>
           <Routes>
             <Route path="/" element={<LandingHomePage />} />
+            <Route path="/personal-health" element={<PersonalHealthDashboard />} />
+            <Route path="/family-health" element={<PatientPortalDashboard />} />
             <Route path="/my-health" element={<PatientPortalDashboard />} />
             <Route path="/dashboard" element={<ClinicalDashboardPage />} />
             <Route path="/patient/intake" element={<PatientIntakePage />} />

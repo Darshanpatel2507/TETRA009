@@ -1,7 +1,7 @@
 import type { Patient, Assessment } from "../types";
 
 export interface PatientMeta {
-  portal_type?: "community" | "personal";
+  portal_type?: "community" | "personal" | "family";
   family_code?: string;
   relationship?: string;
 }
@@ -51,7 +51,7 @@ export const DEMO_FAMILY_MEMBERS: { patient: Patient; assessment: Assessment }[]
       sex: "M",
       village: "Ahmedabad Community",
       phone: "+91 98234-56789",
-      portal_type: "personal",
+      portal_type: "family",
       family_code: "7392",
       relationship: "Father (Head of Family)",
       created_at: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
@@ -96,7 +96,7 @@ export const DEMO_FAMILY_MEMBERS: { patient: Patient; assessment: Assessment }[]
       sex: "F",
       village: "Ahmedabad Community",
       phone: "+91 98234-56788",
-      portal_type: "personal",
+      portal_type: "family",
       family_code: "7392",
       relationship: "Mother",
       created_at: new Date(Date.now() - 3600000 * 24 * 5).toISOString(),
@@ -136,7 +136,7 @@ export const DEMO_FAMILY_MEMBERS: { patient: Patient; assessment: Assessment }[]
       sex: "F",
       village: "Ahmedabad Community",
       phone: "+91 98234-56787",
-      portal_type: "personal",
+      portal_type: "family",
       family_code: "7392",
       relationship: "Daughter",
       created_at: new Date(Date.now() - 3600000 * 24 * 10).toISOString(),
@@ -170,6 +170,52 @@ export const DEMO_FAMILY_MEMBERS: { patient: Patient; assessment: Assessment }[]
   }
 ];
 
+/** 
+ * Built-in Demo Individual Personal profile for standalone personal symptom tracking without household codes.
+ */
+export const DEMO_PERSONAL_MEMBERS: { patient: Patient; assessment: Assessment }[] = [
+  {
+    patient: {
+      id: "demo-personal-1",
+      full_name: "Aditya Sharma (My Health Record)",
+      age: 31,
+      sex: "M",
+      village: "Individual Self-Checkup",
+      phone: "+91 99123-45678",
+      portal_type: "personal",
+      created_at: new Date(Date.now() - 3600000 * 12).toISOString(),
+    },
+    assessment: {
+      id: "demo-personal-ass-1",
+      patient_id: "demo-personal-1",
+      assessed_at: new Date(Date.now() - 3600000 * 12).toISOString(),
+      band: "low",
+      confidence: "screened",
+      notes: "Routine self-logged personal symptom screening.",
+      scores: {
+        hypertension: { band: "low", stage: "Optimal pulse and blood pressure range", value: 116 },
+        diabetes: { band: "low", stage: "Stable blood sugar response", value: 88 },
+        cvd: { band: "low", stage: "Healthy cardiovascular fitness", value: 2 },
+        ckd: { band: "low", stage: "Normal renal hydration levels", value: 100 },
+        stroke: { band: "low", stage: "No neurologic indicators observed", value: 0 },
+      },
+      factors: [
+        { condition: "hypertension", label: "Self-Reported Status", value: "No acute symptoms", weight: 0.2, source: "history" }
+      ],
+      gap_labs: [],
+      specialist: {
+        primary: "Preventive Wellness Physician",
+        reason: "Regular personal wellness monitoring."
+      },
+      decision: {
+        band: "low",
+        rationale: "All reported symptom indicators reflect normal baseline wellness without acute warnings.",
+        action: "Maintain proactive personal fitness, adequate hydration, and healthy sleep habits."
+      }
+    }
+  }
+];
+
 export function getLocalPersonalMembers(): { patient: Patient; assessment: Assessment }[] {
   if (typeof window === "undefined") return [];
   try {
@@ -191,8 +237,10 @@ export function saveLocalPersonalMember(patient: Patient, assessment: Assessment
 
 export function lookupDemoOrLocalPatient(id?: string): { patient?: Patient; assessment?: Assessment } {
   if (!id) return {};
-  const demo = DEMO_FAMILY_MEMBERS.find(m => m.patient.id === id || m.assessment.id === id);
-  if (demo) return demo;
+  const demoFam = DEMO_FAMILY_MEMBERS.find(m => m.patient.id === id || m.assessment.id === id);
+  if (demoFam) return demoFam;
+  const demoPers = DEMO_PERSONAL_MEMBERS.find(m => m.patient.id === id || m.assessment.id === id);
+  if (demoPers) return demoPers;
   const local = getLocalPersonalMembers().find(m => m.patient.id === id || m.assessment.id === id);
   if (local) return local;
   return {};

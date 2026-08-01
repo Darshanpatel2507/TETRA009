@@ -123,7 +123,7 @@ export function IntakeStepper() {
           >
             {step === "demographics" && <DemographicsForm value={payload} onChange={update} />}
             {step === "vitals" && <VitalsForm value={payload} onChange={update} />}
-            {step === "symptoms" && <SymptomsForm value={payload} onChange={update} />}
+            {step === "symptoms" && <SymptomsForm value={payload} onChange={update} onSkipToHistory={() => setStep("history")} />}
             {step === "history" && <HistoryForm value={payload} onChange={update} />}
             {step === "labs" && <LabsForm value={payload} onChange={update} />}
           </motion.div>

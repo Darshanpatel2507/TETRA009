@@ -108,7 +108,7 @@ export async function createAssessment(p: IntakePayload): Promise<{ patientId: s
 
   if (aerr || !assData) {
     // If working offline/demo in personal portal, create synthetic local assessment
-    if (portalType === "personal") {
+    if (portalType === "personal" || portalType === "family") {
       ass = {
         id: `local-ass-${Date.now()}`,
         patient_id: pat.id,
@@ -129,7 +129,7 @@ export async function createAssessment(p: IntakePayload): Promise<{ patientId: s
     ass = assData as Assessment;
   }
 
-  if (portalType === "personal") {
+  if (portalType === "personal" || portalType === "family") {
     saveLocalPersonalMember(pat, ass!);
   }
 

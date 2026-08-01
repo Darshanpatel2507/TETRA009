@@ -25,7 +25,7 @@ export interface Patient {
   sex: "M" | "F";
   village: string | null;
   phone: string | null;
-  portal_type?: "community" | "personal";
+  portal_type?: "community" | "personal" | "family";
   family_code?: string;
   relationship?: string;
   created_at: string;
@@ -103,7 +103,7 @@ export interface IntakePayload {
   sex: "M" | "F";
   village?: string;
   phone?: string;
-  portal_type?: "community" | "personal";
+  portal_type?: "community" | "personal" | "family";
   family_code?: string;
   relationship?: string;
 
@@ -129,6 +129,10 @@ export interface IntakePayload {
     polydipsia: boolean;
     fatigue: boolean;
     swelling_legs: boolean;
+    /** Free-text extraction & duration metadata */
+    durations?: Record<string, string>;
+    unclassified_notes?: string[];
+    [key: string]: any;
   };
 
   history: {

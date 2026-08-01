@@ -48,10 +48,18 @@ export function RiskConstellationPage() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate(patient?.portal_type === "personal" ? "/my-health" : "/dashboard")}
+            onClick={() => navigate(
+              patient?.portal_type === "personal" && !patient?.family_code ? "/personal-health" :
+              (patient?.portal_type === "family" || patient?.portal_type === "personal" || patient?.family_code) ? "/family-health" :
+              "/dashboard"
+            )}
             className="font-semibold text-text-primary hover:bg-surface-elevated px-3 py-1.5 rounded-lg flex items-center gap-2 border border-border/60 transition-all shadow-sm"
           >
-            <span>←</span> Back to {patient?.portal_type === "personal" ? "My Family Portal" : "Dashboard"}
+            <span>←</span> Back to {
+              patient?.portal_type === "personal" && !patient?.family_code ? "Personal Health Portal" :
+              (patient?.portal_type === "family" || patient?.portal_type === "personal" || patient?.family_code) ? "Family Health Portal" :
+              "Dashboard"
+            }
           </Button>
           <span className="text-text-muted text-sm">/</span>
           <span className="text-sm font-bold text-text-primary font-display">Risk Constellation Overview</span>

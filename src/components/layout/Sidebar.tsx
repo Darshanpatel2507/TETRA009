@@ -1,19 +1,17 @@
-/**
- * Desktop sidebar — dark navy-green, with a sliding indicator
- * that follows the active route. Collapses to icon-only.
- */
 import { motion } from "framer-motion";
 import { NavLink, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { classNames } from "../../lib/utils/formatters";
 import { LanguagePill } from "./LanguagePill";
 import { useLang } from "../../context/LanguageContext";
+import { SahayakLogo, IconHome, IconUser, IconDoctor, IconClipboard, IconHomeWellness } from "../ui/SahayakIcons";
 
 const navItems = [
-  { to: "/", labelKey: "nav.home", icon: "🏠", exact: true },
-  { to: "/my-health", labelKey: "nav.myHealth", icon: "👤", exact: false },
-  { to: "/dashboard", labelKey: "nav.dashboard", icon: "🩺", exact: false },
-  { to: "/patient/intake", labelKey: "nav.intake", icon: "✚", exact: false },
+  { to: "/", labelKey: "nav.home", icon: <IconHome size={20} />, exact: true },
+  { to: "/personal-health", labelKey: "nav.personalHealth", icon: <IconUser size={20} />, exact: false },
+  { to: "/family-health", labelKey: "nav.familyHealth", icon: <IconHomeWellness size={20} />, exact: false },
+  { to: "/dashboard", labelKey: "nav.dashboard", icon: <IconDoctor size={20} />, exact: false },
+  { to: "/patient/intake", labelKey: "nav.intake", icon: <IconClipboard size={20} />, exact: false },
 ];
 
 export function Sidebar() {
@@ -26,10 +24,10 @@ export function Sidebar() {
       initial={false}
       animate={{ width: collapsed ? 72 : 256 }}
       transition={{ duration: 0.18, ease: "easeOut" }}
-      className="bg-surface-sidebar text-text-inverse h-screen sticky top-0 flex flex-col z-[200] shadow-xl"
+      className="bg-surface-sidebar text-text-inverse h-screen sticky top-0 flex flex-col z-[200] shadow-xl text-left"
     >
       <div className="flex items-center gap-3 px-4 h-16 border-b border-white/10">
-        <img src="/favicon.svg" alt="Sahayak" className="h-9 w-9 rounded-lg shrink-0 shadow-sm" />
+        <SahayakLogo size={36} className="shrink-0 shadow-sm" />
         {!collapsed && (
           <div className="leading-tight">
             <div className="font-display text-lg font-black tracking-tight">{t("app.title")}</div>
@@ -61,7 +59,7 @@ export function Sidebar() {
                     active ? "text-white font-bold" : "text-text-inverse/80 hover:text-white hover:bg-white/5",
                   )}
                 >
-                  <span className="text-lg w-6 text-center shrink-0">{n.icon}</span>
+                  <span className="w-6 text-center shrink-0 flex items-center justify-center">{n.icon}</span>
                   {!collapsed && <span className="truncate">{t(n.labelKey)}</span>}
                 </NavLink>
               </li>

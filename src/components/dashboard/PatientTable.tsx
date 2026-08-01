@@ -60,7 +60,7 @@ export function PatientTable({ rows }: { rows: DashboardRow[] }) {
                 <span
                   key={k}
                   title={k}
-                  className={`inline-block h-5 w-5 grid place-items-center text-[10px] font-mono rounded text-text-inverse`}
+                  className="inline-grid h-5 w-5 place-items-center text-[10px] font-mono rounded text-text-inverse"
                   style={{ background: `var(--condition-${k})` }}
                 >
                   {condLabel[k]}

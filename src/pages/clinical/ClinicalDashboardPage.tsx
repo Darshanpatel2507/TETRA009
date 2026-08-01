@@ -20,7 +20,7 @@ export function ClinicalDashboardPage() {
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<{ key: SortKey; dir: "asc" | "desc" }>({ key: "band", dir: "desc" });
   // Strictly display only community records (hide personal/family records)
-  const rows = (q.data ?? []).filter((r) => r.patient.portal_type !== "personal");
+  const rows = (q.data ?? []).filter((r) => r.patient.portal_type !== "personal" && r.patient.portal_type !== "family");
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
     return rows.filter((r) => {

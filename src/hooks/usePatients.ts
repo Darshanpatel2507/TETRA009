@@ -5,7 +5,7 @@ import type { Assessment, Patient, Referral } from "../types";
 import { useToast } from "../components/ui/Toast";
 import { useLang } from "../context/LanguageContext";
 import { bandLabel } from "../lib/utils/formatters";
-import { mergePatientWithMetadata, DEMO_FAMILY_MEMBERS, getLocalPersonalMembers, lookupDemoOrLocalPatient } from "../lib/metadataAdapter";
+import { mergePatientWithMetadata, DEMO_FAMILY_MEMBERS, DEMO_PERSONAL_MEMBERS, getLocalPersonalMembers, lookupDemoOrLocalPatient } from "../lib/metadataAdapter";
 
 export interface DashboardRow {
   patient: Patient;
@@ -78,7 +78,7 @@ export function usePatients() {
       const existingIds = new Set(dbRows.map((r) => r.patient.id));
       const localAndDemo: DashboardRow[] = [];
 
-      [...getLocalPersonalMembers(), ...DEMO_FAMILY_MEMBERS].forEach((m) => {
+      [...getLocalPersonalMembers(), ...DEMO_FAMILY_MEMBERS, ...DEMO_PERSONAL_MEMBERS].forEach((m) => {
         if (!existingIds.has(m.patient.id)) {
           existingIds.add(m.patient.id);
           localAndDemo.push({

@@ -19,6 +19,7 @@ import type {
 import { scoreAbcd2, scoreBp, scoreCkd, scoreCvd, scoreFast, scoreIdrs } from "./";
 import { pickSpecialist } from "./specialistMap";
 import { analyzeGap } from "./gapAnalysis";
+import { MASTER_SYMPTOM_TAXONOMY } from "../taxonomy/masterSymptomTaxonomy";
 
 export interface RunResult {
   scores: Record<ConditionKey, ConditionScore>;
@@ -63,12 +64,13 @@ export function runRiskEngine(p: IntakePayload): RunResult {
 
   const stroke = (() => {
     if (fast.band === "critical") return fast;
-    const strokeClinical: 0 | 1 | 2 = 0; // FAST already gated above; ABCD² clinical = 0 here
+    const strokeClinical: 0 | 1 | 2 = p.symptoms.tia_episode_history ? 2 : 0;
+    const strokeDuration: 0 | 1 | 2 = p.symptoms.tia_episode_history ? 1 : 0;
     return scoreAbcd2({
       age60: p.age >= 60,
       bp: p.vitals.systolic_bp >= 140 || p.vitals.diastolic_bp >= 90,
       clinical: strokeClinical,
-      duration: 0,
+      duration: strokeDuration,
       diabetes: (L.fasting_glucose_mg_dl ?? 0) >= 126 || (L.hba1c_percent ?? 0) >= 6.5,
     });
   })();
@@ -81,12 +83,48 @@ export function runRiskEngine(p: IntakePayload): RunResult {
     stroke:        { band: stroke.band, stage: stroke.stage, value: stroke.value },
   };
 
+  // Master Symptom Taxonomy alignment & overrides
+  const symptomCounts: Record<ConditionKey, number> = {
+    diabetes: 0,
+    hypertension: 0,
+    cvd: 0,
+    ckd: 0,
+    stroke: 0,
+  };
+
+  let hasEmergencySymptom = false;
+  let emergencyRationale = "";
+
+  for (const sym of MASTER_SYMPTOM_TAXONOMY) {
+    if (p.symptoms[sym.id]) {
+      for (const cond of sym.conditions) {
+        if (sym.isEmergency) {
+          hasEmergencySymptom = true;
+          if (!emergencyRationale) emergencyRationale = `Acute Sign: ${sym.question}`;
+          scores[cond].band = "critical";
+          scores[cond].stage = `Acute alert (${sym.conditionNames.join(", ")})`;
+        } else {
+          symptomCounts[cond] = (symptomCounts[cond] || 0) + 1;
+          if (scores[cond].band === "low") {
+            scores[cond].band = "moderate";
+            if (scores[cond].stage.toLowerCase().includes("low") || scores[cond].stage.toLowerCase().includes("negative")) {
+              scores[cond].stage = "Symptom markers present — checkup advised";
+            }
+          } else if (scores[cond].band === "moderate" && symptomCounts[cond] >= 2) {
+            scores[cond].band = "high";
+            scores[cond].stage = "Multiple symptoms present — 48-hour assessment recommended";
+          }
+        }
+      }
+    }
+  }
+
   // Decision priority
   let decision: DecisionOutput;
   if (fast.band === "critical") {
     decision = {
       band: "critical",
-      rationale: "FAST stroke screen positive — acute neurological event",
+      rationale: "FAST+ stroke screen positive — acute neurological emergency",
       action: "Immediate referral",
     };
   } else if (bp.band === "critical" as any) {
@@ -95,11 +133,11 @@ export function runRiskEngine(p: IntakePayload): RunResult {
       rationale: "Hypertensive crisis (BP ≥180/120)",
       action: "Immediate referral",
     };
-  } else if (anyBand(scores, "critical")) {
+  } else if (hasEmergencySymptom || anyBand(scores, "critical")) {
     decision = {
-      band: "high",
-      rationale: "Mixed — one or more critical condition markers",
-      action: "48-hour referral",
+      band: "critical",
+      rationale: emergencyRationale || "Critical condition marker or acute emergency sign detected",
+      action: "Immediate referral",
     };
   } else if (anyBand(scores, "high")) {
     decision = {
@@ -192,15 +230,23 @@ function buildFactorRows(
       source: "who-ish",
     });
   }
-  if (p.symptoms.face_droop || p.symptoms.arm_weakness || p.symptoms.speech_difficulty) {
-    rows.push({
-      condition: "stroke",
-      label: "FAST stroke screen",
-      value: "Positive",
-      weight: 1,
-      source: "fast",
-    });
+  
+  // Dynamic Master Symptom Factor rows with Duration tracking
+  for (const sym of MASTER_SYMPTOM_TAXONOMY) {
+    if (p.symptoms[sym.id]) {
+      const dur = p.symptoms.durations?.[sym.id] ? ` [Duration: ${p.symptoms.durations[sym.id]}]` : "";
+      for (const cond of sym.conditions) {
+        rows.push({
+          condition: cond,
+          label: sym.stageName,
+          value: `${sym.question}${dur}`,
+          weight: sym.isEmergency ? 1 : 0.65,
+          source: (sym.conditions.includes("stroke") && sym.isEmergency) ? "fast" : "history",
+        });
+      }
+    }
   }
+  
   return rows;
 }
 

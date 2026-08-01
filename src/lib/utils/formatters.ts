@@ -1,15 +1,26 @@
 /** Tiny string helpers used across the UI. Centralised so copy is consistent. */
 
-export function bandLabel(b: "low" | "moderate" | "high" | "critical"): string {
+export function bandLabel(b: "low" | "moderate" | "high" | "critical" | string): string {
   switch (b) {
     case "low":
-      return "Routine";
+    case "none":
+    case "safe":
+    case "routine":
+      return "All Clear";
     case "moderate":
-      return "Routine, flagged";
+    case "soft":
+    case "needs monitoring":
+      return "Needs Attention";
     case "high":
-      return "48-hour referral";
+    case "firm":
+    case "advanced":
+    case "high alert":
+      return "48 Hours";
     case "critical":
+    case "immediate":
       return "Immediate";
+    default:
+      return "All Clear";
   }
 }
 

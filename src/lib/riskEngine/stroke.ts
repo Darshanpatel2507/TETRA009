@@ -8,6 +8,8 @@ export interface FastInput {
   face_droop: boolean;
   arm_weakness: boolean;
   speech_difficulty: boolean;
+  sudden_balance_loss?: boolean;
+  thunderclap_headache?: boolean;
   time_of_onset?: string;
 }
 
@@ -18,10 +20,10 @@ export interface StrokeOutput {
 }
 
 export function scoreFast(i: FastInput): StrokeOutput {
-  if (i.face_droop || i.arm_weakness || i.speech_difficulty) {
+  if (i.face_droop || i.arm_weakness || i.speech_difficulty || i.sudden_balance_loss || i.thunderclap_headache) {
     return {
       band: "critical",
-      stage: "FAST positive — acute stroke suspected",
+      stage: "FAST+ acute screen positive — neurological emergency",
       value: 1,
     };
   }

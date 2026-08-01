@@ -1,65 +1,76 @@
-import { Switch } from "../ui/Switch";
-import { useLang } from "../../context/LanguageContext";
-import { Tooltip } from "../ui/Tooltip";
+import { useState } from "react";
 import type { IntakePayload } from "../../types";
+import { MasterSymptomWizard } from "./MasterSymptomWizard";
+import { HospitalStaffForm } from "./HospitalStaffForm";
+import { IconUser, IconDoctor, IconHospital, IconInfo } from "../ui/SahayakIcons";
 
 interface Props {
   value: IntakePayload;
   onChange: (p: Partial<IntakePayload>) => void;
+  onSkipToHistory?: () => void;
 }
 
-const FAST = ["face_droop", "arm_weakness", "speech_difficulty"] as const;
-const GENERAL = [
-  ["chest_pain", "Chest pain"],
-  ["shortness_of_breath", "Shortness of breath"],
-  ["polyuria", "Frequent urination"],
-  ["polydipsia", "Excessive thirst"],
-  ["fatigue", "Fatigue"],
-  ["swelling_legs", "Leg swelling"],
-] as const;
-
-export function SymptomsForm({ value, onChange }: Props) {
-  const { t } = useLang();
-  const update = (s: Partial<IntakePayload["symptoms"]>) => {
-    onChange({ symptoms: { ...value.symptoms, ...s } });
-  };
+export function SymptomsForm({ value, onChange, onSkipToHistory }: Props) {
+  const [mode, setMode] = useState<"patient" | "staff">("patient");
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="font-display text-lg mb-1">FAST stroke screen</h3>
-        <p className="text-sm text-text-secondary mb-3">Any positive = immediate referral.</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {FAST.map((k) => (
-            <div key={k} className="rounded-card border border-border p-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Tooltip label={k.replace(/_/g, " ").toUpperCase()}>
-                  <span className="text-sm font-medium">{t(`field.${k}`)}</span>
-                </Tooltip>
-              </div>
-              <Switch
-                checked={Boolean(value.symptoms[k])}
-                onChange={(v) => update({ [k]: v } as any)}
-              />
-            </div>
-          ))}
+    <div className="space-y-6 text-left">
+      {/* Mode Selector Top Bar */}
+      <div className="p-5 md:p-6 rounded-3xl border border-border bg-surface shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+        <div>
+          <h4 className="text-sm md:text-base font-extrabold text-text-primary flex items-center gap-2">
+            <IconHospital size={20} className="text-brand-primary shrink-0" />
+            <span>Who is filling out this symptom assessment?</span>
+          </h4>
+          <p className="text-xs text-text-secondary mt-1 flex items-center gap-1.5 font-medium">
+            <IconInfo size={14} className="text-brand-primary shrink-0" />
+            <span>Patients receive conversational questions with duration tracking. Healthcare workers bypass subjective questionnaires to enter direct medical histories.</span>
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 bg-surface-elevated p-1.5 rounded-2xl border border-border w-full md:w-auto shrink-0 shadow-inner">
+          <button
+            type="button"
+            onClick={() => setMode("patient")}
+            className={`flex-1 md:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs md:text-sm font-extrabold transition-all shadow-2xs cursor-pointer ${
+              mode === "patient"
+                ? "bg-brand-primary text-white shadow-sm font-black"
+                : "text-text-secondary hover:text-text-primary hover:bg-surface"
+            }`}
+          >
+            <IconUser size={16} />
+            <span>Patient / Citizen</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMode("staff")}
+            className={`flex-1 md:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs md:text-sm font-extrabold transition-all shadow-2xs cursor-pointer ${
+              mode === "staff"
+                ? "bg-brand-primary text-white shadow-sm font-black"
+                : "text-text-secondary hover:text-text-primary hover:bg-surface"
+            }`}
+          >
+            <IconDoctor size={16} />
+            <span>Hospital Staff / Nurse</span>
+          </button>
         </div>
       </div>
 
-      <div>
-        <h3 className="font-display text-lg mb-3">General symptoms</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {GENERAL.map(([k, label]) => (
-            <div key={k} className="rounded-card border border-border p-3 flex items-center justify-between">
-              <span className="text-sm font-medium">{t(`field.${k}`)}</span>
-              <Switch
-                checked={Boolean(value.symptoms[k as keyof IntakePayload["symptoms"]])}
-                onChange={(v) => update({ [k]: v } as any)}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Conditional Form Render based on Mode */}
+      {mode === "patient" ? (
+        <MasterSymptomWizard
+          symptoms={value.symptoms}
+          onChange={(s) => onChange({ symptoms: s as any })}
+          isEmbedded={true}
+        />
+      ) : (
+        <HospitalStaffForm
+          symptoms={value.symptoms}
+          onChange={(s) => onChange({ symptoms: s as any })}
+          onSkipToHistory={onSkipToHistory}
+        />
+      )}
     </div>
   );
 }

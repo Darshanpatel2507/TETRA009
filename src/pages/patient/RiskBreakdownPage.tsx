@@ -70,10 +70,18 @@ export function RiskBreakdownPage() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate(patient?.portal_type === "personal" ? "/my-health" : "/dashboard")}
+            onClick={() => navigate(
+              patient?.portal_type === "personal" && !patient?.family_code ? "/personal-health" :
+              (patient?.portal_type === "family" || patient?.portal_type === "personal" || patient?.family_code) ? "/family-health" :
+              "/dashboard"
+            )}
             className="text-text-secondary hover:text-text-primary px-2.5 py-1.5 text-sm font-medium"
           >
-            {patient?.portal_type === "personal" ? "My Family Portal" : "Clinical Dashboard"}
+            {
+              patient?.portal_type === "personal" && !patient?.family_code ? "Personal Health Portal" :
+              (patient?.portal_type === "family" || patient?.portal_type === "personal" || patient?.family_code) ? "Family Health Portal" :
+              "Clinical Dashboard"
+            }
           </Button>
         </div>
         <div className="flex flex-wrap items-center gap-3 text-xs text-text-secondary bg-surface-elevated/80 px-3.5 py-1.5 rounded-lg border border-border/50 shadow-inner">
