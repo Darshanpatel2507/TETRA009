@@ -19,8 +19,8 @@ export function ClinicalDashboardPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<{ key: SortKey; dir: "asc" | "desc" }>({ key: "band", dir: "desc" });
-
-  const rows = q.data ?? [];
+  // Strictly display only community records (hide personal/family records)
+  const rows = (q.data ?? []).filter((r) => r.patient.portal_type !== "personal");
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
     return rows.filter((r) => {
@@ -67,7 +67,7 @@ export function ClinicalDashboardPage() {
         csvEscape(r.last_assessment?.assessed_at ?? ""),
       ].join(","));
     }
-    downloadBlob("nirog-dashboard.csv", lines.join("\n"));
+    downloadBlob("sahayak-patient-registry.csv", lines.join("\n"));
   }
 
   function toggleSort(k: SortKey) {

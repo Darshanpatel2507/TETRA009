@@ -21,13 +21,13 @@ const LanguageCtx = createContext<Ctx | null>(null);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(() => {
-    const saved = typeof window !== "undefined" ? window.localStorage.getItem("nirog.locale") : null;
+    const saved = typeof window !== "undefined" ? (window.localStorage.getItem("sahayak.locale") || window.localStorage.getItem("nirog.locale")) : null;
     return (saved as Locale) || "en";
   });
 
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);
-    try { window.localStorage.setItem("nirog.locale", l); } catch {}
+    try { window.localStorage.setItem("sahayak.locale", l); } catch {}
   }, []);
 
   const t = useCallback((key: string, fallback?: string) => {

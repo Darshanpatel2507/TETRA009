@@ -25,6 +25,9 @@ export interface Patient {
   sex: "M" | "F";
   village: string | null;
   phone: string | null;
+  portal_type?: "community" | "personal";
+  family_code?: string;
+  relationship?: string;
   created_at: string;
 }
 
@@ -100,6 +103,9 @@ export interface IntakePayload {
   sex: "M" | "F";
   village?: string;
   phone?: string;
+  portal_type?: "community" | "personal";
+  family_code?: string;
+  relationship?: string;
 
   vitals: {
     height_cm: number;

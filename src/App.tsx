@@ -5,17 +5,17 @@ import { ClinicalDashboardPage } from "./pages/clinical/ClinicalDashboardPage";
 import { PatientIntakePage } from "./pages/patient/PatientIntakePage";
 import { RiskConstellationPage } from "./pages/patient/RiskConstellationPage";
 import { RiskBreakdownPage } from "./pages/patient/RiskBreakdownPage";
+import { LandingHomePage } from "./pages/home/LandingHomePage";
+import { PatientPortalDashboard } from "./pages/patient/PatientPortalDashboard";
 
 /**
- * Nirog routes (no auth this pass — direct, all realtime-driven).
- *  /                                   → ClinicalDashboardPage
- *  /dashboard                          → ClinicalDashboardPage (alias)
- *  /patient/intake                     → new assessment wizard
- *  /patient/:id/constellation          → risk constellation view
- *  /patient/:id/breakdown              → factor breakdown + referral
- *
- * Note: <ToastProvider /> is mounted in main.tsx so the toast context
- * covers every route. This component only paints the two shells.
+ * Sahayak routes — dual gateway portals & clinical registry.
+ *  /                                   → LandingHomePage (Showcase & Dual Portal Gateway)
+ *  /my-health                          → PatientPortalDashboard (Personal Patient Hub)
+ *  /dashboard                          → ClinicalDashboardPage (Clinical Worker Registry)
+ *  /patient/intake                     → New health checkup wizard
+ *  /patient/:id/constellation          → Risk constellation view
+ *  /patient/:id/breakdown              → Factor breakdown + referral letter
  */
 export default function App() {
   return (
@@ -24,7 +24,8 @@ export default function App() {
       <div className="hidden md:block h-full">
         <AppShell>
           <Routes>
-            <Route path="/" element={<ClinicalDashboardPage />} />
+            <Route path="/" element={<LandingHomePage />} />
+            <Route path="/my-health" element={<PatientPortalDashboard />} />
             <Route path="/dashboard" element={<ClinicalDashboardPage />} />
             <Route path="/patient/intake" element={<PatientIntakePage />} />
             <Route
@@ -43,7 +44,8 @@ export default function App() {
       <div className="block md:hidden h-full">
         <MobileShell>
           <Routes>
-            <Route path="/" element={<ClinicalDashboardPage />} />
+            <Route path="/" element={<LandingHomePage />} />
+            <Route path="/my-health" element={<PatientPortalDashboard />} />
             <Route path="/dashboard" element={<ClinicalDashboardPage />} />
             <Route path="/patient/intake" element={<PatientIntakePage />} />
             <Route

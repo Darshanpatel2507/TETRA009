@@ -19,9 +19,9 @@ export function MobileShell({ children }: { children: ReactNode }) {
       <header className="bg-surface-sidebar text-text-inverse px-4 pt-5 pb-6 rounded-b-card">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/favicon.svg" alt="Nirog" className="h-10 w-10 rounded-lg" />
+            <img src="/favicon.svg" alt="Sahayak" className="h-10 w-10 rounded-lg shadow-md" />
             <div>
-              <div className="font-display text-xl">{t("app.title")}</div>
+              <div className="font-display text-xl font-bold">{t("app.title")}</div>
               <div className="text-xs text-text-inverse/70">{t("app.tagline")}</div>
             </div>
           </div>

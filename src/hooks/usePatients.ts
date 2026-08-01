@@ -5,6 +5,7 @@ import type { Assessment, Patient, Referral } from "../types";
 import { useToast } from "../components/ui/Toast";
 import { useLang } from "../context/LanguageContext";
 import { bandLabel } from "../lib/utils/formatters";
+import { mergePatientWithMetadata, DEMO_FAMILY_MEMBERS, getLocalPersonalMembers, lookupDemoOrLocalPatient } from "../lib/metadataAdapter";
 
 export interface DashboardRow {
   patient: Patient;
@@ -13,56 +14,84 @@ export interface DashboardRow {
 }
 
 /**
- * Clinical dashboard hook — fetches all patients and joins their most
- * recent assessment + referral. Subscribes to realtime INSERTs on
- * risk_assessments and prepends the new row + a localised toast.
- *
- * The toast copy comes from the narrate-alert edge function so the
- * clinician sees the alert in the active UI language. The urgency
- * band itself is always set deterministically — the edge function
- * only rephrases.
+ * Feeds dashboards with both community database records and personal family members.
+ * Proper filtering by portal_type is applied in the views.
  */
 export function usePatients() {
   const q = useQuery<DashboardRow[]>({
     queryKey: ["patients"],
     queryFn: async () => {
-      const { data: patients, error } = await supabase
-        .from("patients")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
+      let dbPatients: Patient[] = [];
+      try {
+        const { data: patients, error } = await supabase
+          .from("patients")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (!error && patients) {
+          dbPatients = patients as Patient[];
+        }
+      } catch (e) {
+        console.warn("Could not load from Supabase patients, using local storage/demo fallback", e);
+      }
 
-      const ids = (patients ?? []).map((p: Patient) => p.id);
+      const ids = dbPatients.map((p) => p.id);
 
-      const { data: assessments } = await supabase
-        .from("risk_assessments")
-        .select("*")
-        .in("patient_id", ids)
-        .order("assessed_at", { ascending: false });
+      let assessments: Assessment[] = [];
+      let referrals: Referral[] = [];
+      if (ids.length > 0) {
+        try {
+          const resAss = await supabase
+            .from("risk_assessments")
+            .select("*")
+            .in("patient_id", ids)
+            .order("assessed_at", { ascending: false });
+          assessments = (resAss.data ?? []) as Assessment[];
 
-      const { data: referrals } = await supabase
-        .from("referrals")
-        .select("*")
-        .in("patient_id", ids)
-        .order("created_at", { ascending: false });
+          const resRef = await supabase
+            .from("referrals")
+            .select("*")
+            .in("patient_id", ids)
+            .order("created_at", { ascending: false });
+          referrals = (resRef.data ?? []) as Referral[];
+        } catch (e) {
+          console.warn("Could not load assessments/referrals from DB", e);
+        }
+      }
 
       const latestAssess = new Map<string, Assessment>();
-      (assessments ?? []).forEach((a: Assessment) => {
+      assessments.forEach((a) => {
         if (!latestAssess.has(a.patient_id)) latestAssess.set(a.patient_id, a);
       });
 
       const latestRef = new Map<string, Referral>();
-      (referrals ?? []).forEach((r: Referral) => {
+      referrals.forEach((r) => {
         if (!latestRef.has(r.patient_id)) latestRef.set(r.patient_id, r);
       });
 
-      return (patients ?? []).map((p: Patient) => ({
-        patient: p,
+      const dbRows: DashboardRow[] = dbPatients.map((p) => ({
+        patient: mergePatientWithMetadata(p),
         last_assessment: latestAssess.get(p.id) ?? null,
         last_referral: latestRef.get(p.id) ?? null,
       }));
+
+      // Combine with local personal members and demo family members
+      const existingIds = new Set(dbRows.map((r) => r.patient.id));
+      const localAndDemo: DashboardRow[] = [];
+
+      [...getLocalPersonalMembers(), ...DEMO_FAMILY_MEMBERS].forEach((m) => {
+        if (!existingIds.has(m.patient.id)) {
+          existingIds.add(m.patient.id);
+          localAndDemo.push({
+            patient: mergePatientWithMetadata(m.patient),
+            last_assessment: m.assessment ?? null,
+            last_referral: null,
+          });
+        }
+      });
+
+      return [...dbRows, ...localAndDemo];
     },
-    staleTime: 60_000,
+    staleTime: 30_000,
   });
 
   // Realtime — when a new assessment lands anywhere, refetch + toast.
@@ -107,4 +136,14 @@ export function usePatients() {
   }, [qc, push, locale]);
 
   return q;
+}
+
+/** Helper hook to obtain a patient's demographic profile (Name, age, relationship) by ID */
+export function usePatient(patientId: string | undefined): Patient | null {
+  const { data: rows } = usePatients();
+  if (!patientId) return null;
+  const row = rows?.find((r) => r.patient.id === patientId);
+  if (row) return row.patient;
+  const demo = lookupDemoOrLocalPatient(patientId);
+  return demo.patient ?? null;
 }

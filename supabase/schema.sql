@@ -20,8 +20,16 @@ create table if not exists public.patients (
   sex         char(1)     not null check (sex in ('M','F')),
   village     text,
   phone       text,
+  portal_type text        default 'community',
+  family_code text,
+  relationship text,
   created_at  timestamptz not null default now()
 );
+
+-- Idempotent upgrades for pre-existing deployments
+alter table public.patients add column if not exists portal_type text default 'community';
+alter table public.patients add column if not exists family_code text;
+alter table public.patients add column if not exists relationship text;
 
 -- -----------------------------------------------------------------
 -- risk_assessments

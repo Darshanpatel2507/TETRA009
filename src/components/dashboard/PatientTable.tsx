@@ -38,7 +38,12 @@ export function PatientTable({ rows }: { rows: DashboardRow[] }) {
       empty={t("dashboard.empty")}
       onRowClick={(r) => r.last_assessment && navigate(`/patient/${r.patient.id}/constellation`)}
       columns={[
-        { key: "name", header: t("table.name"), cell: (r) => r.patient.full_name },
+        { key: "name", header: t("table.name"), cell: (r) => (
+          <div>
+            <div className="font-bold text-text-primary">{r.patient.full_name}</div>
+            <div className="text-[11px] font-mono text-text-muted">ID: {r.patient.id.slice(0, 8)}</div>
+          </div>
+        )},
         { key: "age", header: t("table.age"), className: "font-mono w-16", cell: (r) => <span className="font-mono">{r.patient.age}</span> },
         { key: "sex", header: t("table.sex"), className: "w-16", cell: (r) => <span className="font-mono">{r.patient.sex}</span> },
         { key: "village", header: t("table.village"), cell: (r) => r.patient.village ?? "—" },
