@@ -1,0 +1,106 @@
+/* =============================================================
+   Nirog — design tokens
+   This file is the SINGLE SOURCE OF TRUTH for color, type, radius,
+   shadow, and motion. Tailwind reads the same custom properties via
+   tailwind.config.ts so utilities like `bg-risk-high` and
+   `text-condition-cvd` resolve to these variables.
+
+   IMPORTANT — TWO COLOR SYSTEMS, do not mix:
+     1. Risk-level (urgency) — what action should be taken now?
+        --risk-low / --risk-mod / --risk-high / --risk-crit
+     2. Condition — which condition is being discussed?
+        --condition-diabetes / -hypertension / -cvd / -ckd / -stroke
+   ============================================================= */
+
+:root {
+  /* ----- Brand --------------------------------------------- */
+  --brand-primary: #1a8a7a;       /* primary action / accents */
+  --brand-dark:    #0f2a26;       /* dark navy-green: sidebar, constellation */
+  --brand-accent:  #34c5a8;       /* hovers, focus rings, highlights */
+
+  /* ----- Surfaces (light app shell) ----------------------- */
+  --bg:              #f6f7f8;     /* page background — off-white */
+  --surface:         #ffffff;     /* cards */
+  --surface-muted:   #eef1f3;     /* subtle panels, table header rows */
+  --surface-sidebar: #0f2a26;     /* desktop sidebar (dark) */
+
+  /* ----- Text --------------------------------------------- */
+  --text-primary:   #11201d;      /* default body */
+  --text-secondary: #475a56;      /* captions, labels */
+  --text-inverse:   #ffffff;      /* on dark surfaces */
+  --text-muted:     #7c8a87;      /* placeholder / disabled */
+
+  /* ----- Borders ------------------------------------------ */
+  --border:        #e3e7e9;
+  --border-strong: #c9d1d4;
+
+  /* ----- Risk-level (urgency) ----------------------------- */
+  /* DO NOT confuse with the condition palette below. */
+  --risk-low:  #2bb673;  /* green: routine */
+  --risk-mod:  #e8a93a;  /* amber:   routine, flagged */
+  --risk-high: #e06a2b;  /* orange:  48h */
+  --risk-crit: #d23a3a;  /* red:     immediate / acute */
+
+  /* ----- Condition (which condition) ---------------------- */
+  --condition-diabetes:     #2d6cdf;  /* blue */
+  --condition-hypertension: #b5446e;  /* magenta */
+  --condition-cvd:          #b35a1a;  /* burnt orange */
+  --condition-ckd:          #7a4dc8;  /* purple */
+  --condition-stroke:       #0b7a7a;  /* teal */
+
+  /* ----- Radii -------------------------------------------- */
+  --radius-card: 14px;
+  --radius-pill: 999px;
+
+  /* ----- Shadows ------------------------------------------ */
+  --shadow-card: 0 1px 2px rgba(15, 42, 38, 0.05),
+                 0 4px 12px rgba(15, 42, 38, 0.04);
+  --shadow-lift: 0 6px 18px rgba(15, 42, 38, 0.10),
+                 0 2px 4px rgba(15, 42, 38, 0.06);
+
+  /* ----- Motion ------------------------------------------- */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ====== Global resets ===================================== */
+html, body, #root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* All numerics in IBM Plex Mono, no exceptions. */
+.num,
+.font-mono,
+table td .num,
+table th .num {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Display headings */
+h1, h2, h3, .display {
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* Focus ring — uniform across the app */
+:focus-visible {
+  outline: 2px solid var(--brand-accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Smooth color transitions on themeable surfaces */
+* {
+  transition-property: background-color, border-color, color;
+  transition-duration: 120ms;
+  transition-timing-function: var(--ease-out-soft);
+}

@@ -1,0 +1,214 @@
+/**
+ * Decision engine — combines per-condition scores into a single
+ * urgency band + action + rationale.
+ *
+ * Priority order (higher overrides lower):
+ *   1. Acute/FAST positive → immediate
+ *   2. Any condition "critical" → immediate
+ *   3. Any condition "high"     → 48-hour referral
+ *   4. Any condition "moderate" → routine, flagged
+ *   5. Else                    → routine annual
+ */
+import type {
+  ConditionKey,
+  ConditionScore,
+  DecisionOutput,
+  IntakePayload,
+  RiskBand,
+} from "../../types";
+import { scoreAbcd2, scoreBp, scoreCkd, scoreCvd, scoreFast, scoreIdrs } from "./";
+import { pickSpecialist } from "./specialistMap";
+import { analyzeGap } from "./gapAnalysis";
+
+export interface RunResult {
+  scores: Record<ConditionKey, ConditionScore>;
+  decision: DecisionOutput;
+  factors: import("../../types").FactorRow[];
+  gap_labs: import("../../types").GapLab[];
+  specialist: import("../../types").SpecialistRef;
+  confidence: "lab-confirmed" | "screened";
+}
+
+export function runRiskEngine(p: IntakePayload): RunResult {
+  const L = p.labs ?? {};
+
+  // Per-condition scores
+  const fast = scoreFast(p.symptoms);
+  const bp = scoreBp({
+    systolic: p.vitals.systolic_bp,
+    diastolic: p.vitals.diastolic_bp,
+    on_antihypertensive: p.history.on_antihypertensive,
+  });
+  const idrs = scoreIdrs({
+    age: p.age,
+    sex: p.sex,
+    waist_cm: p.vitals.waist_cm,
+    activityScore: p.history.smoking ? 20 : 10, // proxy
+    family_diabetes: p.history.family_diabetes,
+    fasting_glucose_mg_dl: L.fasting_glucose_mg_dl,
+    hba1c_percent: L.hba1c_percent,
+  });
+  const cvd = scoreCvd({
+    age: p.age,
+    sex: p.sex,
+    smoking: p.history.smoking,
+    systolic_bp: p.vitals.systolic_bp,
+    diabetes: (L.fasting_glucose_mg_dl ?? 0) >= 126 || (L.hba1c_percent ?? 0) >= 6.5,
+  });
+  const ckd = scoreCkd({
+    age: p.age,
+    sex: p.sex,
+    serum_creatinine_mg_dl: L.serum_creatinine_mg_dl ?? 0,
+  });
+
+  const stroke = (() => {
+    if (fast.band === "critical") return fast;
+    const strokeClinical: 0 | 1 | 2 = 0; // FAST already gated above; ABCD² clinical = 0 here
+    return scoreAbcd2({
+      age60: p.age >= 60,
+      bp: p.vitals.systolic_bp >= 140 || p.vitals.diastolic_bp >= 90,
+      clinical: strokeClinical,
+      duration: 0,
+      diabetes: (L.fasting_glucose_mg_dl ?? 0) >= 126 || (L.hba1c_percent ?? 0) >= 6.5,
+    });
+  })();
+
+  const scores: Record<ConditionKey, ConditionScore> = {
+    diabetes:      { band: idrs.band, stage: idrs.stage, value: idrs.value ?? null },
+    hypertension:  { band: bp.band,   stage: bp.stage,   value: bp.value },
+    cvd:           { band: cvd.band,  stage: cvd.stage,  value: cvd.value, ml_probability: cvd.ml_probability },
+    ckd:           { band: ckd.band,  stage: ckd.stage,  value: ckd.value },
+    stroke:        { band: stroke.band, stage: stroke.stage, value: stroke.value },
+  };
+
+  // Decision priority
+  let decision: DecisionOutput;
+  if (fast.band === "critical") {
+    decision = {
+      band: "critical",
+      rationale: "FAST stroke screen positive — acute neurological event",
+      action: "Immediate referral",
+    };
+  } else if (bp.band === "critical" as any) {
+    decision = {
+      band: "critical",
+      rationale: "Hypertensive crisis (BP ≥180/120)",
+      action: "Immediate referral",
+    };
+  } else if (anyBand(scores, "critical")) {
+    decision = {
+      band: "high",
+      rationale: "Mixed — one or more critical condition markers",
+      action: "48-hour referral",
+    };
+  } else if (anyBand(scores, "high")) {
+    decision = {
+      band: "high",
+      rationale: "One or more high-risk conditions",
+      action: "48-hour referral",
+    };
+  } else if (anyBand(scores, "moderate")) {
+    decision = {
+      band: "moderate",
+      rationale: "Elevated risk — flagged for follow-up",
+      action: "Routine, flagged",
+    };
+  } else {
+    decision = {
+      band: "low",
+      rationale: "No elevated risk markers",
+      action: "Routine annual review",
+    };
+  }
+
+  // Factor breakdown (cap weight 0..1)
+  const factors = buildFactorRows(p, scores);
+
+  // Specialist
+  const active = (Object.keys(scores) as ConditionKey[]).filter(
+    (k) => scores[k].band !== "low",
+  );
+  const specialist = pickSpecialist(active);
+
+  // Confidence: any of the lab-backed engines (idrs, ckd, cvd) have labs
+  const hasLabs = L.fasting_glucose_mg_dl != null || L.hba1c_percent != null || L.serum_creatinine_mg_dl != null;
+  const confidence: "lab-confirmed" | "screened" = hasLabs ? "lab-confirmed" : "screened";
+
+  const gap_labs = analyzeGap(p);
+
+  return {
+    scores,
+    decision,
+    factors,
+    gap_labs,
+    specialist,
+    confidence,
+  };
+}
+
+function anyBand(scores: Record<ConditionKey, ConditionScore>, b: RiskBand): boolean {
+  return (Object.keys(scores) as ConditionKey[]).some((k) => scores[k].band === b);
+}
+
+function buildFactorRows(
+  p: IntakePayload,
+  scores: Record<ConditionKey, ConditionScore>,
+): import("../../types").FactorRow[] {
+  const rows: import("../../types").FactorRow[] = [];
+
+  if (p.vitals.systolic_bp > 0) {
+    rows.push({
+      condition: "hypertension",
+      label: "Blood pressure",
+      value: `${p.vitals.systolic_bp}/${p.vitals.diastolic_bp} mmHg`,
+      weight: normalise(scores.hypertension.band),
+      source: "jnc8",
+    });
+  }
+  if (p.history.family_diabetes || (p.labs?.hba1c_percent != null) || (p.labs?.fasting_glucose_mg_dl != null)) {
+    rows.push({
+      condition: "diabetes",
+      label: "Diabetes risk",
+      value: scores.diabetes.stage,
+      weight: normalise(scores.diabetes.band),
+      source: "idrs",
+    });
+  }
+  if (p.labs?.serum_creatinine_mg_dl != null) {
+    rows.push({
+      condition: "ckd",
+      label: "Kidney function (eGFR)",
+      value: `${scores.ckd.value} mL/min/1.73m²`,
+      weight: normalise(scores.ckd.band),
+      source: "ckd-epi",
+    });
+  }
+  if (p.vitals.systolic_bp > 0) {
+    rows.push({
+      condition: "cvd",
+      label: "10-year CVD risk",
+      value: scores.cvd.value != null ? `${scores.cvd.value}%` : "—",
+      weight: normalise(scores.cvd.band),
+      source: "who-ish",
+    });
+  }
+  if (p.symptoms.face_droop || p.symptoms.arm_weakness || p.symptoms.speech_difficulty) {
+    rows.push({
+      condition: "stroke",
+      label: "FAST stroke screen",
+      value: "Positive",
+      weight: 1,
+      source: "fast",
+    });
+  }
+  return rows;
+}
+
+function normalise(b: RiskBand): number {
+  switch (b) {
+    case "low": return 0.15;
+    case "moderate": return 0.45;
+    case "high": return 0.75;
+    case "critical": return 1;
+  }
+}
