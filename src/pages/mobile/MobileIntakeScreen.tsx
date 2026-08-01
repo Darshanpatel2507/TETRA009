@@ -40,6 +40,13 @@ export function MobileIntakeScreen() {
   const { t } = useLang();
   const [p, setP] = useState<IntakePayload>(empty());
   const [saving, setSaving] = useState(false);
+  const [bpInput, setBpInput] = useState("");
+
+  const canSave =
+    p.full_name.trim().length > 0 &&
+    p.age > 0 &&
+    p.vitals.systolic_bp > 0 &&
+    p.vitals.diastolic_bp > 0;
 
   function update(x: Partial<IntakePayload>) {
     setP((cur) => ({ ...cur, ...x }));
@@ -80,10 +87,18 @@ export function MobileIntakeScreen() {
         {b != null && <div className="text-xs text-text-secondary">BMI <span className="font-mono">{b.toFixed(1)}</span> · {bmiLabel[bmiCategory(b) ?? "normal"]}</div>}
         <Input
           label={t("field.bp")}
-          value={p.vitals.systolic_bp && p.vitals.diastolic_bp ? `${p.vitals.systolic_bp}/${p.vitals.diastolic_bp}` : ""}
+          value={bpInput}
           onChange={(e) => {
-            const [s, d] = e.target.value.split("/").map((n) => Number(n));
-            update({ vitals: { ...p.vitals, systolic_bp: s || 0, diastolic_bp: d || 0 } });
+            const val = e.target.value;
+            setBpInput(val);
+            const parts = val.split("/");
+            update({
+              vitals: {
+                ...p.vitals,
+                systolic_bp: Number(parts[0]) || 0,
+                diastolic_bp: Number(parts[1]) || 0,
+              },
+            });
           }}
           placeholder="120/80"
         />
@@ -97,7 +112,21 @@ export function MobileIntakeScreen() {
         <Row label={t("field.chest_pain")} checked={p.symptoms.chest_pain} onChange={(v) => update({ symptoms: { ...p.symptoms, chest_pain: v } })} />
       </Card>
 
-      <Button loading={saving} onClick={save} size="lg" className="w-full">{t("intake.save")}</Button>
+      <div className="space-y-2">
+        {!canSave && (
+          <p className="text-xs text-amber-500 font-medium">
+            ⚠ Required before saving: Patient Name, Age, and Blood Pressure.
+          </p>
+        )}
+        <div className="flex gap-3">
+          <Button variant="ghost" onClick={() => navigate("/dashboard")} size="lg" className="flex-1">
+            {t("intake.back")}
+          </Button>
+          <Button loading={saving} onClick={save} disabled={!canSave} size="lg" className="flex-2 w-2/3">
+            {t("intake.save")}
+          </Button>
+        </div>
+      </div>
     </motion.div>
   );
 }

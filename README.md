@@ -557,6 +557,4 @@ MIT — see `LICENSE` (not yet committed; add before publishing).
 
 Built for the village clinic. Every number in IBM Plex Mono. Every patient in their own language.
 
-</div>#   T E T R A 0 0 9  
- #   T E T R A 0 0 9  
- 
+</div>

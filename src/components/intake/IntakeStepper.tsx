@@ -87,7 +87,7 @@ export function IntakeStepper() {
   const isLast = idx === STEPS.length - 1;
   const isFirst = idx === 0;
 
-  const valid =
+  const canSave =
     payload.full_name.trim().length > 0 &&
     payload.age > 0 &&
     payload.vitals.systolic_bp > 0 &&
@@ -133,8 +133,7 @@ export function IntakeStepper() {
       <div className="flex items-center gap-2 mt-6">
         <Button
           variant="ghost"
-          onClick={() => setStep(STEPS[Math.max(0, idx - 1)].id)}
-          disabled={isFirst}
+          onClick={() => (isFirst ? navigate("/dashboard") : setStep(STEPS[Math.max(0, idx - 1)].id))}
         >
           {t("intake.back")}
         </Button>
@@ -142,15 +141,21 @@ export function IntakeStepper() {
         {!isLast && (
           <Button
             onClick={() => setStep(STEPS[Math.min(STEPS.length - 1, idx + 1)].id)}
-            disabled={!valid}
           >
             {t("intake.next")}
           </Button>
         )}
         {isLast && (
-          <Button onClick={onSave} loading={saving} disabled={!valid}>
-            {t("intake.save")}
-          </Button>
+          <div className="flex flex-col items-end gap-2">
+            {!canSave && (
+              <span className="text-xs text-amber-500 font-medium">
+                ⚠ Required before saving: Patient Name, Age, and Blood Pressure.
+              </span>
+            )}
+            <Button onClick={onSave} loading={saving} disabled={!canSave}>
+              {t("intake.save")}
+            </Button>
+          </div>
         )}
       </div>
     </Card>

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Input } from "../ui/Input";
 import { VoiceInputField } from "./VoiceInputField";
 import { Tooltip } from "../ui/Tooltip";
@@ -14,6 +15,14 @@ export function VitalsForm({ value, onChange }: Props) {
   const { t } = useLang();
   const b = bmi(value.vitals.weight_kg, value.vitals.height_cm);
   const cat = bmiCategory(b);
+
+  const [bpInput, setBpInput] = useState(() =>
+    value.vitals.systolic_bp && value.vitals.diastolic_bp
+      ? `${value.vitals.systolic_bp}/${value.vitals.diastolic_bp}`
+      : value.vitals.systolic_bp
+      ? `${value.vitals.systolic_bp}`
+      : ""
+  );
 
   const update = (vitals: Partial<IntakePayload["vitals"]>) => {
     onChange({ vitals: { ...value.vitals, ...vitals } });
@@ -57,12 +66,15 @@ export function VitalsForm({ value, onChange }: Props) {
           <Tooltip label="Systolic / Diastolic mmHg">
             <Input
               label={t("field.bp")}
-              value={value.vitals.systolic_bp && value.vitals.diastolic_bp
-                ? `${value.vitals.systolic_bp}/${value.vitals.diastolic_bp}`
-                : ""}
+              value={bpInput}
               onChange={(e) => {
-                const [s, d] = e.target.value.split("/").map((n) => Number(n));
-                update({ systolic_bp: s || 0, diastolic_bp: d || 0 });
+                const val = e.target.value;
+                setBpInput(val);
+                const parts = val.split("/");
+                update({
+                  systolic_bp: Number(parts[0]) || 0,
+                  diastolic_bp: Number(parts[1]) || 0,
+                });
               }}
               placeholder="120/80"
             />
@@ -70,7 +82,12 @@ export function VitalsForm({ value, onChange }: Props) {
         </div>
         <VoiceInputField onResult={(text) => {
           const m = text.match(/(\d{2,3})\s*\D+\s*(\d{2,3})/);
-          if (m) update({ systolic_bp: Number(m[1]), diastolic_bp: Number(m[2]) });
+          if (m) {
+            const s = Number(m[1]);
+            const d = Number(m[2]);
+            setBpInput(`${s}/${d}`);
+            update({ systolic_bp: s, diastolic_bp: d });
+          }
         }} />
       </div>
 
