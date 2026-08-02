@@ -6,3 +6,7 @@ export * from "./stroke";
 export * from "./decisionEngine";
 export * from "./specialistMap";
 export * from "./gapAnalysis";
+export * from "./taxonomy";
+export * from "./isolate";
+export * from "./dwscs";
+export * from "./evaluateCondition";

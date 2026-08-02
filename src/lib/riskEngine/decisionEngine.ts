@@ -20,6 +20,9 @@ import { scoreAbcd2, scoreBp, scoreCkd, scoreCvd, scoreFast, scoreIdrs } from ".
 import { pickSpecialist } from "./specialistMap";
 import { analyzeGap } from "./gapAnalysis";
 import { MASTER_SYMPTOM_TAXONOMY } from "../taxonomy/masterSymptomTaxonomy";
+import { selectInputsForCondition } from "./isolate";
+import { evaluateCondition } from "./evaluateCondition";
+import { CONDITIONS } from "./taxonomy";
 
 export interface RunResult {
   scores: Record<ConditionKey, ConditionScore>;
@@ -83,38 +86,38 @@ export function runRiskEngine(p: IntakePayload): RunResult {
     stroke:        { band: stroke.band, stage: stroke.stage, value: stroke.value },
   };
 
-  // Master Symptom Taxonomy alignment & overrides
-  const symptomCounts: Record<ConditionKey, number> = {
-    diabetes: 0,
-    hypertension: 0,
-    cvd: 0,
-    ckd: 0,
-    stroke: 0,
-  };
-
+  // Cross-Condition Isolation Guarantee & DWSCS Evaluation
   let hasEmergencySymptom = false;
   let emergencyRationale = "";
 
-  for (const sym of MASTER_SYMPTOM_TAXONOMY) {
-    if (p.symptoms[sym.id]) {
-      for (const cond of sym.conditions) {
-        if (sym.isEmergency) {
-          hasEmergencySymptom = true;
-          if (!emergencyRationale) emergencyRationale = `Acute Sign: ${sym.question}`;
-          scores[cond].band = "critical";
-          scores[cond].stage = `Acute alert (${sym.conditionNames.join(", ")})`;
-        } else {
-          symptomCounts[cond] = (symptomCounts[cond] || 0) + 1;
-          if (scores[cond].band === "low") {
-            scores[cond].band = "moderate";
-            if (scores[cond].stage.toLowerCase().includes("low") || scores[cond].stage.toLowerCase().includes("negative")) {
-              scores[cond].stage = "Symptom markers present — checkup advised";
-            }
-          } else if (scores[cond].band === "moderate" && symptomCounts[cond] >= 2) {
-            scores[cond].band = "high";
-            scores[cond].stage = "Multiple symptoms present — 48-hour assessment recommended";
-          }
-        }
+  for (const cond of CONDITIONS) {
+    // Isolate form inputs at the boundary — physically cannot see fields outside cond's allow-list
+    const scopedInputs = selectInputsForCondition(cond, {
+      ...p.symptoms,
+      systolic_bp: p.vitals.systolic_bp,
+      diastolic_bp: p.vitals.diastolic_bp,
+      fasting_glucose_mg_dl: L.fasting_glucose_mg_dl,
+      hba1c_percent: L.hba1c_percent,
+    });
+    
+    const res = evaluateCondition(cond, scopedInputs, (p as any).priorSubmissions || []);
+
+    if (res.tier === "immediate" || res.basis === "hard-override") {
+      hasEmergencySymptom = true;
+      if (!emergencyRationale && res.matchedCriteria.length > 0) {
+        emergencyRationale = `Acute alert (${cond.toUpperCase()}): ${res.matchedCriteria[0]}`;
+      }
+      scores[cond].band = "critical";
+      scores[cond].stage = `Acute emergency — ${res.matchedCriteria[0]}`;
+    } else if (res.tier === "firm" || res.tier === "advanced") {
+      if (scores[cond].band === "low" || scores[cond].band === "moderate") {
+        scores[cond].band = "high";
+        scores[cond].stage = `Needs Attention · Matches: ${res.matchedCriteria.slice(0, 2).join(" ; ")}`;
+      }
+    } else if (res.tier === "moderate" || res.tier === "soft") {
+      if (scores[cond].band === "low") {
+        scores[cond].band = "moderate";
+        scores[cond].stage = `Symptom markers noted · ${res.matchedCriteria[0]}`;
       }
     }
   }

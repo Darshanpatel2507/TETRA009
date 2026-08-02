@@ -136,7 +136,7 @@ export function RiskConstellation({ scores, overallBand = "low", onSelect }: Pro
 
           // Build precision copy string with mandatory deadline & matched proofs
           const precisionCopy = isLow
-            ? "No concerning readings or symptoms observed today"
+            ? (scoreObj.stage && !scoreObj.stage.toLowerCase().includes("no concerning") ? `All Clear · ${scoreObj.stage}` : "No concerning readings or symptoms observed today")
             : `${rec.action} recommended ${rec.deadline} · Matches: ${scoreObj.stage || "Elevated clinical risk factors identified"}`;
 
           return (

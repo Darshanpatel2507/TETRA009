@@ -278,6 +278,15 @@ export const MASTER_SYMPTOM_TAXONOMY: MasterSymptomItem[] = [
     stageName: "Kidney & Fluid Balance",
   },
   {
+    id: "joint_pain", // Added heuristic extension for CKD uremic symptom picture (not from base sourced clinical files)
+    question: "Do you have unusual joint or muscle pain?",
+    conditions: ["ckd"],
+    conditionNames: ["CKD"],
+    isEmergency: false,
+    stage: 3,
+    stageName: "Kidney & Fluid Balance",
+  },
+  {
     id: "poor_appetite_nausea",
     question: "Do you have poor appetite or feel sick to your stomach?",
     conditions: ["ckd", "diabetes"],
