@@ -5,24 +5,9 @@ export interface IconProps extends SVGProps<SVGSVGElement> {
   className?: string;
 }
 
-/** Sahayak Brand Logo - Modern protecting community health leaves & medical cross */
-export const SahayakLogo: FC<IconProps> = ({ size = 28, className = "", ...props }) => (
-  <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
-    <defs>
-      <linearGradient id="sahayak_logo_grad" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#10B981" />
-        <stop offset="100%" stopColor="#0D9488" />
-      </linearGradient>
-      <linearGradient id="sahayak_inner_grad" x1="40" y1="0" x2="0" y2="40" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#A7F3D0" />
-        <stop offset="100%" stopColor="#F0FDF4" />
-      </linearGradient>
-    </defs>
-    <rect width="40" height="40" rx="12" fill="url(#sahayak_logo_grad)" />
-    <path d="M20 9 C14.5 9 10 13.5 10 19 C10 26 20 31 20 31 C20 31 30 26 30 19 C30 13.5 25.5 9 20 9 Z" fill="#043228" opacity="0.3" />
-    <path d="M22 13 H18 V17 H14 V21 H18 V25 H22 V21 H26 V17 H22 V13 Z" fill="url(#sahayak_inner_grad)" stroke="#043228" strokeWidth="0.5" />
-    <path d="M12 28 C14 31 17 33 20 33 C23 33 26 31 28 28 C26 29 23 30 20 30 C17 30 14 29 12 28 Z" fill="#6EE7B7" opacity="0.9" />
-  </svg>
+/** Sahayak Brand Logo - Renders favicon.svg from public folder */
+export const SahayakLogo: FC<IconProps> = ({ size = 28, className = "" }) => (
+  <img src="/favicon.svg" alt="Logo" style={{ width: size, height: size }} className={className} />
 );
 
 /** Heart & Blood Flow (CVD) Icon */
