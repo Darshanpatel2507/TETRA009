@@ -225,5 +225,5 @@ Navigate to **http://localhost:5173**. Experience the interactive dashboard inst
 
 <div align="center">
   <p><strong>Sahayak · Designed for real community clinics, actionable early diagnosis, and zero guesswork.</strong></p>
-  <p><em>MIT License · Hackathon Ready · Engineered for Accuracy</em></p>
+  <p><em> · Engineered for Accuracy</em></p>
 </div>
