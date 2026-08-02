@@ -6,7 +6,7 @@ import { createAssessment } from "../../hooks/useAssessment";
 import { useToast } from "../../components/ui/Toast";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
-import { classNames, bandLabel } from "../../lib/utils/formatters";
+import { classNames, bandLabel, getBandColorClass } from "../../lib/utils/formatters";
 import { MasterSymptomWizard } from "../../components/intake/MasterSymptomWizard";
 import type { IntakePayload } from "../../types";
 import {
@@ -277,12 +277,8 @@ export function PersonalHealthDashboard() {
                             <span>Individual Record</span>
                           </span>
                           <span className={classNames(
-                            "px-3 py-1 rounded-full text-[10px] font-mono font-black uppercase border shadow-2xs",
-                            band === "critical" || band === "high"
-                              ? "bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40"
-                              : band === "moderate"
-                              ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30"
-                              : "bg-brand-primary/15 text-brand-primary border-brand-primary/30"
+                            "px-3 py-1 rounded-full text-[10px] font-mono uppercase shadow-2xs",
+                            getBandColorClass(band)
                           )}>
                             {band === "low" ? "ALL CLEAR" : bandLabel(band)}
                           </span>

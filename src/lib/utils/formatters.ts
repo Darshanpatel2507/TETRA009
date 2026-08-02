@@ -24,6 +24,22 @@ export function bandLabel(b: "low" | "moderate" | "high" | "critical" | string):
   }
 }
 
+export function getBandColorClass(b: string | null | undefined): string {
+  if (!b) return "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 font-bold";
+  const lbl = bandLabel(b);
+  switch (lbl) {
+    case "Immediate":
+      return "bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/50 font-black animate-pulse shadow-2xs";
+    case "48 Hours":
+      return "bg-orange-500/20 text-orange-700 dark:text-orange-300 border border-orange-500/50 font-extrabold shadow-2xs";
+    case "Needs Attention":
+      return "bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/50 font-bold shadow-2xs";
+    case "All Clear":
+    default:
+      return "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 font-bold shadow-2xs";
+  }
+}
+
 export function csvEscape(value: unknown): string {
   if (value == null) return "";
   const s = String(value);

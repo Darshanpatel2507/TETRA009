@@ -6,6 +6,7 @@ import { supabase } from "../../lib/supabaseClient";
 import type { Assessment } from "../../types";
 import { bandLabel, classNames } from "../../lib/utils/formatters";
 import { getRecommendation } from "../../lib/riskEngine/recommendations";
+import { getAccurateTestRecommendations } from "../../lib/riskEngine/gapAnalysis";
 import {
   IconHospital,
   IconHomeWellness,
@@ -97,8 +98,10 @@ function generateLocalStructuredSummary(assessment: Assessment, lang: string): S
       }
     });
   }
-  if ((assessment.gap_labs ?? []).length > 0) {
-    conditionDrivers.push(`Recommended Diagnostic Testing: To complete your full health review, lab test screenings are advised for ${(assessment.gap_labs ?? []).join(", ")} within 3 weeks.`);
+  const accurateGaps = getAccurateTestRecommendations(assessment.scores, assessment.gap_labs);
+  if (accurateGaps.length > 0) {
+    const testNames = accurateGaps.map(g => g.test).join("; ");
+    conditionDrivers.push(`Recommended Diagnostic Testing: To complete your full health verification, clinical test screenings are advised for: ${testNames}.`);
   }
   if (conditionDrivers.length === 0) {
     conditionDrivers.push("All physical checkup readings and symptom screening answers are optimal, healthy, and within safe baseline targets today.");

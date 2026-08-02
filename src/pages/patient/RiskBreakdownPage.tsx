@@ -13,6 +13,7 @@ import { useCreateReferral } from "../../hooks/useReferral";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { bandLabel, classNames } from "../../lib/utils/formatters";
+import { getAccurateTestRecommendations } from "../../lib/riskEngine/gapAnalysis";
 
 export function RiskBreakdownPage() {
   const { id } = useParams<{ id: string }>();
@@ -32,7 +33,8 @@ export function RiskBreakdownPage() {
   }
 
   const a = q.data;
-  const hasGaps = (a.gap_labs ?? []).length > 0;
+  const accurateGaps = getAccurateTestRecommendations(a.scores, a.gap_labs);
+  const hasGaps = accurateGaps.length > 0;
 
   function scrollToReferral() {
     referralRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -113,7 +115,7 @@ export function RiskBreakdownPage() {
 
       <div className={classNames("grid gap-6", hasGaps ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1")}>
         <FactorBreakdownTable rows={a.factors ?? []} />
-        {hasGaps && <MissingInvestigationsCard gaps={a.gap_labs ?? []} />}
+        {hasGaps && <MissingInvestigationsCard gaps={accurateGaps} />}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

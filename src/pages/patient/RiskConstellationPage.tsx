@@ -8,6 +8,7 @@ import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { useLang } from "../../context/LanguageContext";
 import { bandLabel } from "../../lib/utils/formatters";
+import { getAccurateTestRecommendations } from "../../lib/riskEngine/gapAnalysis";
 import type { ConditionKey } from "../../types";
 
 export function RiskConstellationPage() {
@@ -138,7 +139,7 @@ export function RiskConstellationPage() {
               <div className="p-3 rounded-lg bg-surface-elevated border border-border/60">
                 <span className="text-text-muted text-[10px] uppercase font-bold block">Missing Lab Tests</span>
                 <span className="text-text-primary font-mono font-bold text-sm">
-                  {(a.gap_labs ?? []).length} Tests Recommended
+                  {getAccurateTestRecommendations(a.scores, a.gap_labs).length} Tests Recommended
                 </span>
               </div>
             </div>

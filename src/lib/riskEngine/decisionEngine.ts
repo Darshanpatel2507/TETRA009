@@ -175,7 +175,7 @@ export function runRiskEngine(p: IntakePayload): RunResult {
   const hasLabs = L.fasting_glucose_mg_dl != null || L.hba1c_percent != null || L.serum_creatinine_mg_dl != null;
   const confidence: "lab-confirmed" | "screened" = hasLabs ? "lab-confirmed" : "screened";
 
-  const gap_labs = analyzeGap(p);
+  const gap_labs = analyzeGap(p, scores);
 
   return {
     scores,

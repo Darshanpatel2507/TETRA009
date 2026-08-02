@@ -6,7 +6,7 @@ import { Button } from "../../components/ui/Button";
 import { usePatients } from "../../hooks/usePatients";
 import { createAssessment } from "../../hooks/useAssessment";
 import { useToast } from "../../components/ui/Toast";
-import { bandLabel, classNames } from "../../lib/utils/formatters";
+import { bandLabel, classNames, getBandColorClass } from "../../lib/utils/formatters";
 import type { IntakePayload } from "../../types";
 import {
   IconUser,
@@ -373,12 +373,8 @@ export function PatientPortalDashboard() {
                         <span>{pat.relationship || "Family Member"}</span>
                       </span>
                       <span className={classNames(
-                        "px-2.5 py-1 rounded-full text-[10px] font-mono font-black uppercase border shadow-sm",
-                        band === "critical" || band === "high"
-                          ? "bg-red-500/15 text-red-500 border-red-500/30"
-                          : band === "moderate"
-                          ? "bg-amber-500/15 text-amber-500 border-amber-500/30"
-                          : "bg-emerald-500/15 text-emerald-500 border-emerald-500/30"
+                        "px-2.5 py-1 rounded-full text-[10px] font-mono uppercase shadow-sm",
+                        getBandColorClass(band)
                       )}>
                         {band === "low" ? "ALL CLEAR" : bandLabel(band)}
                       </span>
